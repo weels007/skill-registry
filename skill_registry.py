@@ -425,7 +425,13 @@ def _run_skill_consensus(target_hex: str, skill_name: str, claimed_level: int, a
         }
 
     def _decision_fields(data: dict) -> tuple:
-        return (data.get("verified"), int(data.get("attest_count", 0)), int(data.get("best_reasoning_score", 0)))
+        return (
+            data.get("verified"),
+            int(data.get("verified_level", 0)),
+            int(data.get("attest_count", 0)),
+            int(data.get("unique_attestors", 0)),
+            int(data.get("best_reasoning_score", 0)),
+        )
 
     def validator_fn(leader_result):
         if not isinstance(leader_result, gl.vm.Return):

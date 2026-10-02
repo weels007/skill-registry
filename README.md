@@ -7,7 +7,7 @@
 [![GenLayer](https://img.shields.io/badge/Built%20on-GenLayer-6366f1?style=for-the-badge&logo=genlayer)](https://genlayer.com)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Equivalence](https://img.shields.io/badge/Equivalence%20Principle-OK-16a34a?style=for-the-badge)](https://docs.genlayer.com/developers/intelligent-contracts/equivalence-principle)
-[![Tests](https://img.shields.io/badge/tests-18%20passed-16a34a?style=for-the-badge)](https://github.com/)
+[![Tests](https://img.shields.io/badge/tests-19%20passed-16a34a?style=for-the-badge)](https://github.com/)
 
 ---
 
@@ -39,8 +39,8 @@
 
 SkillRegistry uses `run_nondet_unsafe` with the Equivalence Principle:
 - **Leader**: evaluates attestation reasoning quality via LLM, checks attest count, unique attestors, and level gating.
-- **Validator**: independently re-runs the same evaluation and compares `(verified, verified_level)` decision fields.
-- Consensus requires agreement on both fields. Mismatches trigger rotation.
+- **Validator**: independently re-runs the same evaluation and compares all decision fields: `(verified, verified_level, attest_count, unique_attestors, best_reasoning_score)`.
+- Consensus requires agreement on every consequential field, including `verified_level`. Mismatches trigger rotation.
 - Error classification: `[EXPECTED]` for deterministic errors (exact match), `[TRANSIENT]` for network errors (agree if both), `[LLM]` for LLM errors (always disagree, force rotation).
 
 ---
@@ -78,7 +78,7 @@ pytest tests/ -v
 genvm-lint check contracts/skill_registry.py
 ```
 
-18 GenVM direct-mode tests pass. Lint passes. Validate fails due to known SDK bug (missing runner tar). E2E test passes on studionet (register, claim_skill, get_skill). Deployed to studionet.
+19 GenVM direct-mode tests pass. Lint passes. Validate passes. E2E test passes on studionet (register, claim_skill, get_skill). Deployed to studionet.
 
 ---
 
@@ -86,11 +86,11 @@ genvm-lint check contracts/skill_registry.py
 
 [![Explore](https://img.shields.io/badge/Explore-Studionet-6366f1?style=for-the-badge)](https://genlayer-explorer.vercel.app)
 
-**Address:** `0x232AA4191d93E63c35C6CaD40eC273B943ecEe8C`
+**Address:** `0x86c786bf90E0565DF0EF74eA41BdD993e30d7826`
 **Chain:** Studionet (Genlayer Studio Network)
 **Deployer:** `0x689759bb926E032EAfb1eE986eD7A98C1496ec1c`
-**Tx:** `0x3d68bd13803c5e421e3d71f89045bf81865a548473604f4ffe7413f4ca82cbec`
-**Status:** Deployed and tested on studionet. E2E test passes (register, claim_skill, get_skill). 18/18 direct-mode tests pass. All functions operational: register, claim_skill, attest, evaluate_skill, views.
+**Tx:** `0xe97c9ce8f804d8ec0d3c994fa938874787c395d34521808684abfd9f7d353609`
+**Status:** Deployed and tested on studionet. E2E test passes (register, claim_skill, get_skill). 19/19 direct-mode tests pass. All functions operational: register, claim_skill, attest, evaluate_skill, views.
 
 ---
 

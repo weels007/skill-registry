@@ -248,12 +248,14 @@ class SkillRegistry(gl.Contract):
         signer = _signer_of(sign_msg, signature)
         if signer is None:
             raise gl.vm.UserError("invalid signature")
-        addr_hex = signer.lower().replace("0x", "")
-        if addr_hex in self.users:
-            raise gl.vm.UserError("already registered")
         sender = gl.message.sender_address
+        sender_hex = _addr_hex(sender)
+        if signer != sender_hex:
+            raise gl.vm.UserError("signer must match sender")
+        if sender_hex in self.users:
+            raise gl.vm.UserError("already registered")
         ts = _now_ts()
-        self.users[addr_hex] = User(address=sender, registered_ts=ts)
+        self.users[sender_hex] = User(address=sender, registered_ts=ts)
 
     @gl.public.write
     def claim_skill(self, skill_name: str, level: int) -> None:
@@ -299,10 +301,12 @@ class SkillRegistry(gl.Contract):
         sender = gl.message.sender_address
         if _addr_eq(sender, target):
             raise gl.vm.UserError("cannot attest for yourself")
+        attester_hex = _addr_hex(sender)
+        if attester_hex not in self.users:
+            raise gl.vm.UserError("attester not registered")
         key = f"{target_hex}:{skill_name}"
         if key not in self.skills:
             raise gl.vm.UserError("skill not claimed")
-        attester_hex = _addr_hex(sender)
         att_key = f"{attester_hex}:{target_hex}:{skill_name}"
         for k, a in self.attestations.items():
             if _addr_hex(a.attester) == attester_hex and _addr_hex(a.target) == target_hex and a.skill_name == skill_name:
@@ -343,6 +347,8 @@ class SkillRegistry(gl.Contract):
         entry.verified = result["verified"]
         entry.verified_level = result["verified_level"]
         entry.best_reasoning_score = result["best_reasoning_score"]
+        entry.attest_count = result["attest_count"]
+        entry.unique_attestors = result["unique_attestors"]
         entry.created_ts = ts
         self.skills[key] = entry
 

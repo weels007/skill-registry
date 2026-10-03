@@ -7,7 +7,7 @@
 [![GenLayer](https://img.shields.io/badge/Built%20on-GenLayer-6366f1?style=for-the-badge&logo=genlayer)](https://genlayer.com)
 [![Python](https://img.shields.io/badge/Python-3.12-3776AB?style=for-the-badge&logo=python&logoColor=white)](https://www.python.org/)
 [![Equivalence](https://img.shields.io/badge/Equivalence%20Principle-OK-16a34a?style=for-the-badge)](https://docs.genlayer.com/developers/intelligent-contracts/equivalence-principle)
-[![Tests](https://img.shields.io/badge/tests-19%20passed-16a34a?style=for-the-badge)](https://github.com/)
+[![Tests](https://img.shields.io/badge/tests-21%20passed-16a34a?style=for-the-badge)](https://github.com/)
 
 ---
 
@@ -53,15 +53,16 @@ SkillRegistry establishes patterns that can be reused in other contracts:
 - **Anti-sybil attestation**: unique attestor tracking per skill via `TreeMap` deduplication.
 - **Level-gated verification**: attestations must be from peers at matching or higher skill levels.
 - **Reasoning quality scoring**: LLM evaluation of attestation reasoning in consensus loop.
-- **Consensus via `run_nondet_unsafe`**: Leader + Validator with `(verified, level)` decision field comparison.
+- **Consensus via `run_nondet_unsafe`**: Leader + Validator comparing all decision fields `(verified, verified_level, attest_count, unique_attestors, best_reasoning_score)`.
 
 ---
 
 ## Security & audit
 
-- **Signature verification**: all state-changing actions (register, attest) require EIP-191 signatures verified on-chain via pure-Python secp256k1 ecrecover.
+- **Signature verification**: all state-changing actions (register, attest) require EIP-191 signatures verified on-chain via pure-Python secp256k1 ecrecover. `register` requires the recovered signer to equal the transaction sender.
 - **AST sandbox**: reasoning quality evaluation uses LLM with structured JSON output only.
-- **SSRF blocklist**: evidence URL validation blocks localhost, private networks, cloud metadata.
+- **Registered parties only**: both the attestation target and the attester must be registered users.
+- **Consensus counters persisted**: `evaluate_skill` stores the consensus-computed `attest_count` and `unique_attestors` alongside the verification result.
 - **Anti-sybil**: unique attester check prevents duplicate attestations per skill.
 - **Anti-self-attest**: users cannot attest for themselves.
 - **Input validation**: skill names validated (alphanumeric, max 64 chars), reasoning length enforced (20-500 chars), level bounds checked.
@@ -78,7 +79,7 @@ pytest tests/ -v
 genvm-lint check contracts/skill_registry.py
 ```
 
-19 GenVM direct-mode tests pass. Lint passes. Validate passes. E2E test passes on studionet (register, claim_skill, get_skill). Deployed to studionet.
+21 GenVM direct-mode tests pass. Lint passes. Validate passes. E2E test passes on studionet (register, claim_skill, get_skill). Deployed to studionet.
 
 ---
 
@@ -86,11 +87,11 @@ genvm-lint check contracts/skill_registry.py
 
 [![Explore](https://img.shields.io/badge/Explore-Studionet-6366f1?style=for-the-badge)](https://genlayer-explorer.vercel.app)
 
-**Address:** `0x86c786bf90E0565DF0EF74eA41BdD993e30d7826`
+**Address:** `0xad114Eb8d93D3A089279A3b34F333Afb781bb523`
 **Chain:** Studionet (Genlayer Studio Network)
 **Deployer:** `0x689759bb926E032EAfb1eE986eD7A98C1496ec1c`
-**Tx:** `0xe97c9ce8f804d8ec0d3c994fa938874787c395d34521808684abfd9f7d353609`
-**Status:** Deployed and tested on studionet. E2E test passes (register, claim_skill, get_skill). 19/19 direct-mode tests pass. All functions operational: register, claim_skill, attest, evaluate_skill, views.
+**Tx:** `0x5bba6742b94851d60eb60ac7bcd93297d2b1e34185d7e34b53dc0fe185f44f09`
+**Status:** Deployed and tested on studionet. E2E test passes (register, claim_skill, get_skill). 21/21 direct-mode tests pass. All functions operational: register, claim_skill, attest, evaluate_skill, views.
 
 ---
 
